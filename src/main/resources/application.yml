@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: url-shortener-service
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: url_shortener
+      # For MongoDB Atlas:
+      # uri: mongodb+srv://username:password@cluster.mongodb.net/url_shortener
+
+  security:
+    filter:
+      order: 10
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# JWT Configuration
+jwt:
+  secret: your-256-bit-secret-key-change-this-in-production-must-be-at-least-32-characters
+  expiration: 86400000  # 24 hours in milliseconds
+
+# Application Configuration
+app:
+  base-url: http://localhost:8080
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.urlshortener: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.data.mongodb: DEBUG
+
+# Springdoc OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
