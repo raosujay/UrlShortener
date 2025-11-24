@@ -36,6 +36,12 @@ public class ClickEvent {
 
     private String userAgent;
 
+    private String deviceType;
+
+    private String browser;
+
+    private String operatingSystem;
+
     private String utmSource;
 
     private String utmMedium;

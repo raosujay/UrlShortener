@@ -12,6 +12,7 @@ import com.urlshortener.repository.ClickEventRepository;
 import com.urlshortener.repository.ShortUrlRepository;
 import com.urlshortener.service.ShortCodeGeneratorService;
 import com.urlshortener.service.UrlService;
+import com.urlshortener.service.UserAgentService;
 import com.urlshortener.util.GeoLocationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class UrlServiceImpl implements UrlService {
     private final ClickEventRepository clickEventRepository;
     private final ShortCodeGeneratorService shortCodeGeneratorService;
     private final GeoLocationUtil geoLocationUtil;
+    private final UserAgentService userAgentService;
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
@@ -160,6 +162,7 @@ public class UrlServiceImpl implements UrlService {
         String userAgent = request.getHeader("User-Agent");
 
         Map<String, String> geoData = geoLocationUtil.getGeoLocation(ipAddress);
+        Map<String, String> userAgentData = userAgentService.parseUserAgent(userAgent);
 
         ClickEvent clickEvent = ClickEvent.builder()
                 .shortCode(shortUrl.getShortCode())
@@ -169,6 +172,9 @@ public class UrlServiceImpl implements UrlService {
                 .city(geoData.get("city"))
                 .referrer(referrer)
                 .userAgent(userAgent)
+                .deviceType(userAgentData.get("deviceType"))
+                .browser(userAgentData.get("browser"))
+                .operatingSystem(userAgentData.get("operatingSystem"))
                 .utmSource(request.getParameter("utm_source"))
                 .utmMedium(request.getParameter("utm_medium"))
                 .utmCampaign(request.getParameter("utm_campaign"))

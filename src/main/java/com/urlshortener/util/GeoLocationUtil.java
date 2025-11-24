@@ -2,6 +2,7 @@ package com.urlshortener.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,24 +11,37 @@ import java.util.Map;
 @Component
 public class GeoLocationUtil {
 
+    private final RestTemplate restTemplate;
+
+    public GeoLocationUtil(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public Map<String, String> getGeoLocation(String ipAddress) {
         Map<String, String> geoData = new HashMap<>();
 
         try {
-            // For production, integrate with GeoIP2 or IP geolocation API
-            // Example: MaxMind GeoLite2, IP-API, ipinfo.io
-            // This is a placeholder implementation
+            if (ipAddress == null || ipAddress.equals("127.0.0.1") || ipAddress.startsWith("192.168")
+                    || ipAddress.equals("0:0:0:0:0:0:0:1")) {
+                geoData.put("country", "Local");
+                geoData.put("region", "Local");
+                geoData.put("city", "Local");
+                return geoData;
+            }
 
-            if (ipAddress.equals("127.0.0.1") || ipAddress.startsWith("192.168")) {
+            // Use ip-api.com for geolocation
+            String url = "http://ip-api.com/json/" + ipAddress;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+            if (response != null && "success".equals(response.get("status"))) {
+                geoData.put("country", (String) response.getOrDefault("country", "Unknown"));
+                geoData.put("region", (String) response.getOrDefault("regionName", "Unknown"));
+                geoData.put("city", (String) response.getOrDefault("city", "Unknown"));
+            } else {
                 geoData.put("country", "Unknown");
                 geoData.put("region", "Unknown");
                 geoData.put("city", "Unknown");
-            } else {
-                // TODO: Implement actual geolocation lookup
-                // Using IP geolocation service API
-                geoData.put("country", "India");
-                geoData.put("region", "Karnataka");
-                geoData.put("city", "Bangalore");
             }
 
         } catch (Exception e) {
